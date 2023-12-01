@@ -1,12 +1,13 @@
-import { PrismaClient } from "@prisma/client";
-import { registerUserValidation } from "../validation/user-validation.js"
 import { validate } from "../validation/validation.js"
+import { registerUserValidation } from "../validation/user-validation.js"
+import { prismaClient } from "../application/database.js";
+import { ResponseError } from "../error/response-error.js";
 import bcript from "bcrypt"
 
 const register = async (request) => {
   const user = validate(registerUserValidation, request);
 
-  const countUser = await PrismaClient.user.count({
+  const countUser = await prismaClient.user.count({
     where: {
       username: user.username
     }
@@ -18,7 +19,7 @@ const register = async (request) => {
 
   user.password = await bcript.hash(user.password, 10)
 
-  return PrismaClient.user.create({
+  return prismaClient.user.create({
     data: user,
     select: {
       username: true,
